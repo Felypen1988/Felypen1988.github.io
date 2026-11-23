@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Domínio · Administração</title>
+<link rel="icon" href="/favicon.ico">
+<!-- Modelo: ferramentas/atualizar_site.sh troca https://nzkulzulzvizjspfzvmd.supabase.co e sb_publishable_-lc7bes8AFl_ZYno02LwBg_iddm4jQ5 (chave pública do servidor.cfg) e grava em site/admindominante/ -->
+<style>
+  :root { --fundo:#06101f; --cartao:#0b1b33; --borda:#1d3a63; --ouro:#d9b65c; --ciano:#4fe3ff; --texto:#e6eef8; --apagado:#8ea3bf; --erro:#ff6b6b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--fundo); color:var(--texto); font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  header { display:flex; align-items:center; gap:14px; padding:16px 20px; border-bottom:1px solid var(--borda); }
+  header img { height:44px; }
+  header h1 { font-size:20px; margin:0; color:var(--ouro); letter-spacing:.5px; flex:1; }
+  main { max-width:1100px; margin:0 auto; padding:20px 16px 60px; }
+  .entrar { max-width:380px; margin:60px auto; background:var(--cartao); border:1px solid var(--borda); border-radius:14px; padding:26px; }
+  .entrar h2 { margin:0 0 6px; color:var(--ouro); }
+  .entrar p { margin:0 0 18px; color:var(--apagado); font-size:14px; }
+  input { width:100%; padding:12px 14px; margin-bottom:12px; border-radius:10px; border:1px solid var(--borda); background:#071428; color:var(--texto); font-size:16px; }
+  button { padding:11px 18px; border-radius:10px; border:1px solid var(--ouro); background:#3a2c0a; color:var(--ouro); font-weight:700; font-size:15px; cursor:pointer; }
+  button.leve { border-color:var(--borda); background:transparent; color:var(--apagado); font-weight:600; }
+  .entrar button { width:100%; }
+  .erro { color:var(--erro); min-height:22px; font-size:14px; }
+  h3 { margin:28px 0 12px; font-size:15px; text-transform:uppercase; letter-spacing:1px; color:var(--ciano); }
+  .grade { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:12px; }
+  .cartao { background:var(--cartao); border:1px solid var(--borda); border-radius:12px; padding:14px 16px; }
+  .cartao .n { font-size:30px; font-weight:800; color:var(--texto); }
+  .cartao .r { font-size:13px; color:var(--apagado); }
+  .cartao.destaque .n { color:var(--ouro); }
+  .grafico { background:var(--cartao); border:1px solid var(--borda); border-radius:12px; padding:16px; }
+  .barras { display:flex; align-items:flex-end; gap:3px; height:140px; }
+  .barra { flex:1; background:var(--ciano); border-radius:3px 3px 0 0; min-height:2px; position:relative; opacity:.85; }
+  .barra:hover { opacity:1; }
+  .barra span { position:absolute; bottom:100%; left:50%; transform:translateX(-50%); font-size:11px; color:var(--texto); display:none; white-space:nowrap; }
+  .barra:hover span { display:block; }
+  .eixo { display:flex; justify-content:space-between; color:var(--apagado); font-size:12px; margin-top:6px; }
+  table { width:100%; border-collapse:collapse; background:var(--cartao); border:1px solid var(--borda); border-radius:12px; overflow:hidden; }
+  td { padding:9px 14px; border-bottom:1px solid var(--borda); font-size:14px; }
+  td:last-child { color:var(--apagado); text-align:right; }
+  .rodape { color:var(--apagado); font-size:13px; margin-top:24px; }
+  .escondido { display:none; }
+</style>
+</head>
+<body>
+<header>
+  <img src="/icone_v2.png" alt="">
+  <h1>DOMÍNIO · Administração</h1>
+  <button id="atualizar" class="leve escondido">Atualizar</button>
+  <button id="sair" class="leve escondido">Sair</button>
+</header>
+<main>
+  <form id="tela_entrar" class="entrar escondido">
+    <h2>Entrar</h2>
+    <p>Use o e-mail e a senha da sua conta do Domínio marcada como administradora.</p>
+    <input id="email" type="email" placeholder="E-mail" autocomplete="username" required>
+    <input id="senha" type="password" placeholder="Senha" autocomplete="current-password" required>
+    <div class="erro" id="erro_entrar"></div>
+    <button type="submit">Entrar</button>
+  </form>
+
+  <section id="painel" class="escondido">
+    <div class="erro" id="erro_painel"></div>
+    <h3>Cadastros</h3>
+    <div class="grade">
+      <div class="cartao destaque"><div class="n" id="c_total">–</div><div class="r">contas criadas (total)</div></div>
+      <div class="cartao"><div class="n" id="c_apelido">–</div><div class="r">com apelido escolhido</div></div>
+      <div class="cartao"><div class="n" id="c_hoje">–</div><div class="r">hoje</div></div>
+      <div class="cartao"><div class="n" id="c_7">–</div><div class="r">últimos 7 dias</div></div>
+      <div class="cartao"><div class="n" id="c_30">–</div><div class="r">últimos 30 dias</div></div>
+    </div>
+    <h3>Cadastros por dia (30 dias)</h3>
+    <div class="grafico"><div class="barras" id="g_cadastros"></div><div class="eixo" id="e_cadastros"></div></div>
+
+    <h3>Acessos (aparelhos diferentes)</h3>
+    <div class="grade">
+      <div class="cartao destaque"><div class="n" id="a_hoje">–</div><div class="r">hoje</div></div>
+      <div class="cartao"><div class="n" id="a_aberturas">–</div><div class="r">vezes que o jogo abriu hoje</div></div>
+      <div class="cartao"><div class="n" id="a_agora">–</div><div class="r">nos últimos 15 minutos</div></div>
+      <div class="cartao"><div class="n" id="a_7">–</div><div class="r">últimos 7 dias</div></div>
+      <div class="cartao"><div class="n" id="a_30">–</div><div class="r">últimos 30 dias</div></div>
+      <div class="cartao"><div class="n" id="a_total">–</div><div class="r">desde o começo</div></div>
+    </div>
+    <h3>Acessos por dia (30 dias)</h3>
+    <div class="grafico"><div class="barras" id="g_acessos"></div><div class="eixo" id="e_acessos"></div></div>
+    <h3>De onde (30 dias)</h3>
+    <div class="grade" id="plataformas"></div>
+
+    <h3>Partidas online</h3>
+    <div class="grade">
+      <div class="cartao destaque"><div class="n" id="p_jogando">–</div><div class="r">acontecendo agora</div></div>
+      <div class="cartao"><div class="n" id="p_sala">–</div><div class="r">pessoas na sala de espera</div></div>
+      <div class="cartao"><div class="n" id="p_hoje">–</div><div class="r">começaram hoje</div></div>
+      <div class="cartao"><div class="n" id="p_total">–</div><div class="r">total</div></div>
+    </div>
+
+    <h3>Últimos cadastros</h3>
+    <table id="ultimos"></table>
+    <div class="rodape" id="rodape"></div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const db = supabase.createClient("https://nzkulzulzvizjspfzvmd.supabase.co", "sb_publishable_-lc7bes8AFl_ZYno02LwBg_iddm4jQ5");
+const $ = (id) => document.getElementById(id);
+const NOMES = { web: "Navegador (PC)", web_celular: "Navegador (celular)", android: "App Android", windows: "PC (Windows)", outro: "Outro" };
+
+function mostrar(logado) {
+  $("tela_entrar").classList.toggle("escondido", logado);
+  $("painel").classList.toggle("escondido", !logado);
+  $("sair").classList.toggle("escondido", !logado);
+  $("atualizar").classList.toggle("escondido", !logado);
+}
+
+function diaBR(d) { const [a, m, dd] = d.split("-"); return `${dd}/${m}`; }
+
+function barras(idG, idE, lista) {
+  const hoje = new Date();
+  const dias = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(hoje); d.setDate(hoje.getDate() - i);
+    dias.push(d.toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" }));
+  }
+  const mapa = Object.fromEntries((lista || []).map((x) => [String(x.dia).slice(0, 10), x.n]));
+  const max = Math.max(1, ...dias.map((d) => mapa[d] || 0));
+  $(idG).innerHTML = dias.map((d) => {
+    const n = mapa[d] || 0;
+    return `<div class="barra" style="height:${Math.max(1.5, 100 * n / max)}%"><span>${diaBR(d)}: ${n}</span></div>`;
+  }).join("");
+  $(idE).innerHTML = `<span>${diaBR(dias[0])}</span><span>${diaBR(dias[14])}</span><span>hoje</span>`;
+}
+
+async function carregar() {
+  $("erro_painel").textContent = "";
+  const { data, error } = await db.rpc("admin_resumo");
+  if (error) {
+    $("erro_painel").textContent = error.message.includes("permiss") ? "Esta conta não é de administrador." : "Não consegui carregar: " + error.message;
+    return;
+  }
+  const c = data.cadastros, a = data.acessos, p = data.partidas;
+  $("c_total").textContent = c.total; $("c_apelido").textContent = c.com_apelido;
+  $("c_hoje").textContent = c.hoje; $("c_7").textContent = c.dias7; $("c_30").textContent = c.dias30;
+  $("a_hoje").textContent = a.hoje; $("a_aberturas").textContent = a.aberturas_hoje; $("a_agora").textContent = a.agora;
+  $("a_7").textContent = a.dias7; $("a_30").textContent = a.dias30; $("a_total").textContent = a.total;
+  $("p_jogando").textContent = p.jogando; $("p_sala").textContent = p.na_sala; $("p_hoje").textContent = p.hoje; $("p_total").textContent = p.total;
+  barras("g_cadastros", "e_cadastros", c.por_dia);
+  barras("g_acessos", "e_acessos", a.por_dia);
+  const pl = a.plataformas || {};
+  $("plataformas").innerHTML = Object.keys(pl).length
+    ? Object.entries(pl).map(([k, n]) => `<div class="cartao"><div class="n">${n}</div><div class="r">${NOMES[k] || k}</div></div>`).join("")
+    : `<div class="cartao"><div class="r">Ainda sem acessos contados.</div></div>`;
+  $("ultimos").innerHTML = (c.ultimos || []).map((u) => {
+    const q = new Date(u.quando).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", dateStyle: "short", timeStyle: "short" });
+    const nome = String(u.apelido).replace(/[<>&"]/g, "");
+    return `<tr><td>${nome}</td><td>${q}</td></tr>`;
+  }).join("") || "<tr><td>Ninguém ainda.</td><td></td></tr>";
+  $("rodape").textContent = "Atualizado às " + new Date().toLocaleTimeString("pt-BR") + ". Os acessos contam desde " +
+    "a versão do jogo que começou a contar (antes disso não há registro).";
+}
+
+$("tela_entrar").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  $("erro_entrar").textContent = "";
+  const { error } = await db.auth.signInWithPassword({ email: $("email").value.trim(), password: $("senha").value });
+  if (error) { $("erro_entrar").textContent = "E-mail ou senha incorretos."; return; }
+  $("senha").value = "";
+  mostrar(true);
+  carregar();
+});
+$("sair").addEventListener("click", async () => { await db.auth.signOut(); mostrar(false); });
+$("atualizar").addEventListener("click", carregar);
+
+(async () => {
+  const { data } = await db.auth.getSession();
+  mostrar(!!data.session);
+  if (data.session) carregar();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admindominante/
+
+Sitemap: https://jogodominio.com.br/sitemap.xml
